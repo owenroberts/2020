@@ -1,3 +1,5 @@
+# read through all the time sheets and add them to the main text
+
 import datetime
 import random
 
