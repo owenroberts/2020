@@ -20,9 +20,6 @@ verbs_check = ['review', 'meet', 'prep', 'email']
 # may need more checks, like in fragment with a NN
 # call is verb sometimes (maybe if no other verb ... )
 
-# pos to check in db incorrectly tagged orgs
-pos_check = ['JJ']
-
 # abbreviations
 abrv_check = [('w/', 'with'), ('.25', 'a little bit')]
 
@@ -49,9 +46,6 @@ def build_sentence( text, beginning ):
 				frag = re.sub( r, sub, frag )
 
 		tagged = tag_and_anon( frag ) # get tagged, anonymize 
-
-		
-		
 
 		# some fixes for tags before breaking down by pos
 		for index, tag in enumerate( tagged ):
