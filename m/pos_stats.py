@@ -3,6 +3,8 @@
 from os import listdir
 from os.path import isfile, join
 from tinydb import TinyDB, Query
+from tinydb.operations import increment
+
 from get_time_and_text import get_time_and_text
 from tag_and_anon import tag_and_anon
 
@@ -13,6 +15,7 @@ onlyfiles.sort()
 db = TinyDB( 'db.json' )
 q = Query()
 pos_stats = db.table( 'pos_stats' )
+pos_sequences = db.table( 'pos_sequences' )
 
 def get_stats( file ):
 
@@ -29,6 +32,13 @@ def get_stats( file ):
 			frag = frag.strip()
 			tagged = tag_and_anon( frag )
 
+			pos_seq = " ".join([t[1] for t in tagged])
+			seq_in_db = pos_sequences.search( q.seq == pos_seq )
+			if seq_in_db:
+				pos_sequences.update( increment('count'), q.seq == pos_seq )
+			else:
+				pos_sequences.insert( { 'seq': pos_seq, 'count': 1 } )
+
 			for tag in tagged:
 				word = tag[0]
 				pos = tag[1]
@@ -40,7 +50,5 @@ def get_stats( file ):
 					pos_stats.insert( { 'word': word, 'pos': pos } )
 
 		
-
-
 for file in onlyfiles:
 	get_stats( file )
