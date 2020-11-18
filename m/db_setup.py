@@ -9,4 +9,5 @@ def setup():
 	q = Query()
 	pns = db.table( 'prop_noun_subs' )
 	pos = db.table( 'pos_stats' )
-	return db, q, pns, pos
+	pos_seq = db.table( 'pos_sequences' )
+	return db, q, pns, pos, pos_seq

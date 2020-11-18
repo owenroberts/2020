@@ -70,80 +70,37 @@ def build_sentence( text, beginning ):
 			if word.lower() in verbs_check and pos[0] != 'V':
 				tagged[index] = ( word.lower(), 'VB' )
 
-		# print( 'tagged', tagged )
+		print( 'tagged', tagged )
 
 		# handle frags - list of parts of speech
 		frag_pos = [t[1] for t in tagged] 
 
-		# gonna overhaul this next
-		# has verb and noun
-		# if any('VB' in pos for pos in frag_pos) and any('NN' in pos for pos in frag_pos):
-		if pos_in_frag( 'VB', frag_pos ) and pos_in_frag( 'NN', frag_pos ):
-			verbs = [t[0] for t in tagged if 'VB' in t[1]]
-			nouns = [t for t in tagged if 'NN' in t[1]]
+		verbs = [t for t in tagged if 'VB' in t[1]]
+		nouns = [t for t in tagged if 'NN' in t[1]]
 
-			preps = [t[0] for t in tagged if 'IN' in t[1]]
-			parts = [t[0] for t in tagged if 'RP' in t[1]]
+		preps = [t for t in tagged in 'IN' in t[1]]
+		parts = [t for t in tagged in 'RP' in t[1]]
 
-			if preps:
-				for index, noun in enumerate( nouns ):
-					word, pos = noun
-					# S is plural, P is proper
-					if 'P' not in pos:
-						nouns[index] = ( f'{ "some" if "S" in pos else "a" } { word }', pos )
+		# noun plural or singular add a or some following prep
 
-			sent = f'{ " ".join( verbs ) }'
-			if parts:
-				sent += f' { " ".join( parts ) }'
-			if preps:
-				sent += f' { " ".join( preps ) }'
-			sent +=  f' { " ".join( [n[0] for n in nouns] ) }'
+		# if no verbs, generate a verb
+		if not verbs:
+			related = get_related_word( word.lower() if 'S' not in pos else wnl.lemmatize( word.lower(), 'n' ) )
 
-			events.append( sent )
 
-		# NN/S + NNP/S
-		elif pos_in_frag( 'NNS*$', frag_pos ) and pos_in_frag( 'NNPS*$', frag_pos ):
-			props = [t[0] for t in tagged if 'NNP' in t[1]] # proper nouns 
-			nouns = [t[0] for t in tagged if t[1] == 'NN' or t[1] == 'NNS'] # nouns
 
-			# other verbs possible here?
-			v = random.choice( comps['verbs']['*'] )
+		sent = f'{ " ".join( verbs ) }'
+		if parts:
+			sent += f' { " ".join( parts ) }'
+		if preps:
+			sent += f' { " ".join( preps ) }'
+		sent +=  f' { " ".join( [n[0] for n in nouns] ) }'
 
-			# NN + NN seems to be modified, use space or and? but order is messed up
-			events.append( f'{ v } { " ".join( nouns ) } for { " and ".join( props ) }' )
+		events.append( sent )
 
-		# two common nouns
 
-		else:
-			# handle each words in frag
-			for word, pos in tagged:
 
-				if any( char.isalpha() for char in word ):
-
-					# if its a noun # get a verb
-					if 'NN' in pos:
-						# look for related verbs in concept net
-						# need singular version
-						related = get_related_word( word.lower() if 'S' not in pos else wnl.lemmatize( word.lower(), 'n' ) )
-						v = ''
-						if related:
-							v = random.choice( list(related) )
-						else:
-							v = random.choice( comps['verbs'][word if word in comps['verbs'] else '*'])
-
-						# nouns beginning framgents need to be un-capitalized
-						if re.match( 'NNS*$', pos ) and word not in acronyms:
-							word = word.lower()
-
-						# need article here?
-						events.append( f'{ v } { word }' )
-
-						# put in some random adverb?
-
-				elif word in comps['non-alpha']:
-					events.append( random.choice( comps['non-alpha'][word] ) )
-
-	# print( event_fragments, len(event_fragments) )
+	# add events to sentence, separated by comma or and
 	for index, event in enumerate(events):
 		sentence += event
 		if index < len( events ) - 2:
