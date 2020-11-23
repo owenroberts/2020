@@ -34,6 +34,9 @@ def completions():
 				'work on',
 				'do'
 			],
+			'Place': [
+				'travel to'
+			],
 			'nothing': [
 				'do'
 			]
