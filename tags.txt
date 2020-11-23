@@ -35,3 +35,9 @@ WP$ possessive wh-pronoun whose
 WRB wh-abverb where, when
 
 src: https://www.geeksforgeeks.org/part-speech-tagging-stop-words-using-nltk-python/
+
+Chunker
+NP noun phrase
+VP verb phrase
+PP prepositional phrase
+S sentence
