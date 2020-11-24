@@ -34,8 +34,16 @@ def completions():
 				'work on',
 				'do'
 			],
+			'Place': [
+				'travel to'
+			],
 			'nothing': [
 				'do'
 			]
-		}
+		},
+		'end': [
+			"do nothing",
+			"nothing happens",
+			"don't know what I do"
+		]
 	}

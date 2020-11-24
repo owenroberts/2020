@@ -41,6 +41,7 @@ def read_file( file ):
 		line = line.rstrip()
 
 		if len(line) > 0:
+			# print( 'line:', line )
 			
 			time_stamp, duration, text, current_hour = get_time_and_text( line, current_hour )
 
@@ -51,8 +52,16 @@ def read_file( file ):
 			else:
 				beginning = 'Then, I '
 
-			sentence = build_sentence( text, beginning )
+			if text:
+				sentence = build_sentence( text, beginning )
+			else:
+				sentence = beginning + random.choice( comps['end'] ) # time stamp with nothing after
 
+			# print( 'duration:', duration )
+			if not duration:
+				duration = "I don't remember how long" # no matching time stamp
+
+			# print( f'{ sentence } for { duration }. ' )
 			# add random/multi sentence structures
 			full_text += f'{ sentence } for { duration }. '
 

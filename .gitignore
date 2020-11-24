@@ -5,3 +5,5 @@ time_sheets/
 full_text.txt
 db.json
 dev_notes.txt
+test/
+test.json
