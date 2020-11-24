@@ -30,8 +30,8 @@ abrv_check = [('w/', 'with'), ('.25', 'some')]
 acronyms = ['LOA', 'WFH']
 
 # weird nouns
-weird_nouns = ['nothing']
-
+weird_nouns = ['nothing', 'monitoring'] # gerunds?
+ 
 # break down a sentence ... i need a verb and noun, subject and object
 
 # check types
@@ -57,7 +57,7 @@ def build_sentence( text, beginning ):
 				frag = re.sub( r, sub, frag )
 
 		tagged = tag_and_anon( frag ) # get tagged, anonymize 
-		types = {}
+		subs = {}
 
 		# some fixes for tags before breaking down by pos
 		for index, tag in enumerate( tagged ):
@@ -69,6 +69,7 @@ def build_sentence( text, beginning ):
 
 			# check for words in db, some orgs are tagged incorrectly as JJ etc
 			# does this work for two word orgs etc? 
+			# words are already subbed! this doesn't include already subbed words
 			word_in_db = pns.search( q.word == word )
 			if word_in_db:
 				# if word has substitute (org, person etc.)
@@ -78,6 +79,8 @@ def build_sentence( text, beginning ):
 				# while we're checking, replace words that weren't replace by tag and anon
 				if word != word_in_db[0]['sub']:
 					word = word_in_db[0]['sub']
+
+				subs[word] = word_in_db[0]['sub'] # save for later
 				tagged[index] = ( word, pos )
 
 			# check for nouns incorrectly tagged as verbs
@@ -92,6 +95,7 @@ def build_sentence( text, beginning ):
 				tagged[index] = ( word, pos )
 
 		# print( 'tagged', tagged )
+		
 		if any( t[1].isalpha() for t in tagged ):
 
 			grammar = """
@@ -101,9 +105,10 @@ def build_sentence( text, beginning ):
 			cp = nltk.RegexpParser( grammar )
 			chunks = cp.parse( tagged )
 			# print( 'chunks:', chunks )
-			chunked = []		
+			chunked = []
 
 			# modify noun phrases
+			# add articles?
 			for child in chunks:
 				if type( child ) == nltk.tree.Tree:
 					if child.label() == 'NP':
@@ -111,17 +116,17 @@ def build_sentence( text, beginning ):
 							noun = child.leaves()[0][0]
 							chunked.extend( child.leaves()[1:] )
 
-							prep = ('for', 'IN' )
-							is_sub = pns.search( q.sub == noun )
-							if is_sub and is_sub[0]['sub'] != is_sub[0]['word']:
-								sub_type = noun.split(' ')[0]
-								if sub_type == 'Person':
-									prep = ('with', 'IN')
+							prep = ('for', 'IN' ) # default preposition review for Org 1
+							
+							# fix later, subbed words not in subs ... 
+							if noun.split(' ')[0] == 'Person': # for person call with Person
+								prep = ('with', 'IN')
 
 							chunked.append( prep )
 							chunked.append( child.leaves()[0] )
 						else: 
 							print( '** uh oh ** ' )
+							print( chunks )
 					if child.label() == 'INNN':
 						children = child.leaves()
 						children.insert(1, ('a', 'DT'))
@@ -134,37 +139,37 @@ def build_sentence( text, beginning ):
 			if not verbs:
 				noun, pos = [t for t in chunked if re.match( r'NNS*', t[1] )][0] # first noun (?)
 				sing = noun.lower() 
-
-				# get type
-				sub_type = ''
-				is_sub = pns.search( q.sub == noun )
-				if is_sub and is_sub[0]['sub'] != is_sub[0]['word']:
-					sub_type = noun.split(' ')[0]
-
-
 				
 				if 'S' in pos:  # noun is plural
 					sing = wnl.lemmatize( sing, 'n' )
-				elif noun not in weird_nouns and noun[-3:] != 'ing' and sub_type != 'Place': # noun is singular and not "nothing" or gerund
-					print( word, pos, sub_type, sub_type != 'Place' )
-					if 'P' in pos or noun == 'LOA':  # prop noun gets the
-						chunked.insert(0, ('the', 'DT') ) 
-					else:
-						chunked.insert(0, ('a', 'DT') ) # add an article
-				
+
 				related = get_related_word( sing )
+
 				if related:
 					verb = random.choice( list(related) )
-					chunked.insert(0, (verb, 'VB') )
+				
 				else:
 					search = '*'
 					if noun in comps['verbs']:
 						search = noun
-					elif sub_type in comps['verbs']:
-						search = sub_type
-					
+					# sub type like Person, Org
+					elif noun.split(' ')[0] in comps['verbs']: # this is only "Place" rn
+						search = noun.split(' ')[0]
 					verb = random.choice( comps['verbs'][search])
-					chunked.insert(0, (verb, 'VB') )
+				chunked.insert(0, (verb, 'VB') )
+
+			# add articles
+			# print( 'chunked:', chunked )
+			# n = len( chunked ) - 1
+			# for index in range(n, -1, -1):
+			# 	word, pos = chunked[index]
+				# print( index, word, pos )
+				# common noun need an article
+				# if pos == 'NN' and word not in weird_nouns:
+				# 	dt = 'a' if word[0] in 'aeiou' else 'an'
+				# 	if word == 'LOA':
+				# 		dt = 'an'
+				# 	chunked.insert( index, ( 'a', 'DT' ) )
 
 			events.append( ' '.join([t[0] for t in chunked if any( c.isalpha() for c in t[1])]) )
 
