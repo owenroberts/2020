@@ -48,7 +48,7 @@ def tag_and_anon( text ):
 				sub = '' # empty sub
 
 				# check db first 
-				word_in_db = pns.search( q.word == term )
+				word_in_db = pns.search( q.word.test(has_word, term) )
 				
 				if word_in_db:
 					sub = word_in_db[0]['sub']
@@ -69,18 +69,48 @@ def tag_and_anon( text ):
 					else:
 						# get length of documents with the type in sub and add one
 						sub = f"{ne_type} {str(len( [doc for doc in pns.all() if ne_type in doc['sub']] + 1 ))}"
+						pos = 'NNP' # what about special things like DSP?
 
 					# if there's a new sub add it to the db
 					if sub:	
-						prop_noun_subs.insert( { 'word': term, 'sub': sub } )
+						# way to tell the program to add to existing record?
+						pns.insert( { 'word': [term], 'sub': sub } )
 
 				if sub:
 					# substitue tagged word with new text
 					# print( term, sub, tagged )
-					tagged[index] = (sub, tagged[index][1])
+					tagged[index] = ( sub, pos )
 
 	# clear duplicates created by chunks						
 	new_tagged = [] 
 	[new_tagged.append(t) for t in tagged if t not in new_tagged]
+
+	# check for anything that wasn't tagged
+	# prob only two word entities
+	records = pns.all()
+	sent = " ".join(t[0] for t in tagged)
+	for record in records:
+		word_list, sub = record['word'], record['sub']
+		if sub not in word_list: # remove words that are Self ( maybe this is a dumb tag to use )
+			for word in word_list:
+				if word in sent:
+					word_added = False
+					for index, tag in enumerate( new_tagged ):
+						tag_word, pos = tag
+						if tag_word in word and not word_added:
+							new_tagged[index] = ( sub, 'NNP' )
+							word_added = True
+						elif tag_word in word and word_added:
+							print( "** shit ** ")
+							# fuck me - don't know what to do in this case yet
 	
 	return new_tagged
+
+# db funcs
+def has_word( word_list, word ):
+	return word in word_list
+
+def add_word( word ):
+	def transform( doc ):
+		doc['word'].append( word )                                                                       
+	return transform

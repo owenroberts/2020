@@ -35,7 +35,7 @@ def completions():
 				'do'
 			],
 			'Place': [
-				'travel to'
+				'travel'
 			],
 			'nothing': [
 				'do'

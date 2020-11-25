@@ -40,7 +40,7 @@ def get_related_word( word ):
 
 	# print( 'entailments:', ent_words )
 
-	return related
+	return list( related )
 
 if __name__ == "__main__":
     import sys
