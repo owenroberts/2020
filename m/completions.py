@@ -31,8 +31,7 @@ def completions():
 		},
 		'verbs': {
 			'*': [
-				'work on',
-				'do'
+				'work on'
 			],
 			'Place': [
 				'travel'

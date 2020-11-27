@@ -7,12 +7,17 @@ def subs():
 			'WFH': 'work from home',
 			'RFP': 'request for proposal'
 		},
-		'abbreviations': { 
-			'w/': 'with', 
-			'.25': 'some', 
-			're:': 'regarding' 
+		'special_abbreviations': {
+			'w/': 'with',
+			'.25': 'some',
+			're:': 'regarding',
 		},
-		'check_verbs': [ 'review', 'meet', 'prep', 'email' ],
-		'weird_nouns': ['nothing'],
-		'types': ['Org', 'Person', 'Place', 'Publication', 'List']
+		'abbreviations': { 
+			'prep': 'prepare',
+			'info': 'information'
+		},
+		'uncountable': [ 'information' ],
+		'check_verbs': [ 'review', 'meet', 'prepare', 'email' ],
+		'weird_nouns': [ 'nothing' ],
+		'types': [ 'Org', 'Person', 'Place', 'Publication', 'List' ]
 	}
