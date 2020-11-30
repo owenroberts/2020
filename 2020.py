@@ -80,13 +80,13 @@ def read_file( file ):
 			if not duration:
 				duration = "I don't remember how long" # no matching time stamp
 
-			print( f'{ sentence } for { duration }. ' )
+			# print( f'{ sentence } for { duration }. ' )
 			# add random/multi sentence structures
 			# o.write( f'{ sentence } for { duration }. ' )
 			o.write( '%s' % f'{ sentence } for { duration }. ' )
 
 	# new line after day
-	print( '\n\n' )
+	# print( '\n\n' )
 	o.write( '\n\n' )
 
 o = open( 'tex/2020.tex', 'w' ) # output file
@@ -118,14 +118,25 @@ http://creativecommons.org/licenses/by-sa/4.0/
 \endgroup
 \clearpage
 
+\pagestyle{empty}
+%% copyrightpage
+\begingroup
+\footnotesize
+\parindent 0pt
+\parskip \baselineskip
+The names of people, places, organizations and other named entities in this document have been replaced with randomly generated names.  Any resemblance to actual persons, organizations, places, etc. is coincidental.
+
+\endgroup
+\clearpage
+
 \mainmatter
 
 """ )
 
-# for file in onlyfiles:
-	# read_file( file )
-for i in range(0, 5):
-	read_file( onlyfiles[i] )		
+for file in onlyfiles:
+	read_file( file )
+# for i in range(10, 15):
+# 	read_file( onlyfiles[i] )
 # read_file( onlyfiles[0] )
 
 o.write( r'\end{document}' )

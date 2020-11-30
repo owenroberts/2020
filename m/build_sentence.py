@@ -1,5 +1,6 @@
 # build sentence fragments
 import random
+from random import choice
 import re
 import nltk
 from nltk.tokenize import word_tokenize
@@ -17,6 +18,9 @@ subs = subs.subs()
 
 comps = completions()
 wnl = WordNetLemmatizer()
+
+names = {} # dict to keep track of randomized names
+rchars = 'ABCDEFHIJKLMNOPQRSTUVWXY' # random chars to use for names
 
 
 def build_sentence( text ):
@@ -63,9 +67,9 @@ def build_sentence( text ):
 						verbs.append( chunk.leaves() )
 
 			# these list with tuples word, pos
-			pp = random.choice( props ) if props else ''
-			np = random.choice( nouns ) if nouns else ''
-			vp = random.choice( verbs ) if verbs else ''
+			pp = choice( props ) if props else ''
+			np = choice( nouns ) if nouns else ''
+			vp = choice( verbs ) if verbs else ''
 
 			if not vp:
 				noun = ''
@@ -82,14 +86,14 @@ def build_sentence( text ):
 				related = get_related_words( wnl.lemmatize( noun, 'n' ) if 'S' in pos else noun )
 				
 				if related:
-					vp = [( random.choice( related ), 'VB' )]
+					vp = [( choice( related ), 'VB' )]
 				else:
 					search = '*'
 					if noun in comps['verbs']:
 						search = noun
 					elif noun.split('-')[0] in comps['verbs']:
 						search = noun.split('-')[0]
-					vp = [( random.choice( comps['verbs'][search] ), 'VB' )]
+					vp = [( choice( comps['verbs'][search] ), 'VB' )]
 
 			event_string = '' # put it all together
 
@@ -104,7 +108,6 @@ def build_sentence( text ):
 			event_string += " ".join([v[0].lower() for v in vp])
 
 			if adv and adv[-2:] != 'ly':
-				print( '*' )
 				event_string += f' {adv}'
 			
 			if np and needs_article( np ):
@@ -113,6 +116,9 @@ def build_sentence( text ):
 				np.insert( np.index( n ), ( dt, 'DT' ) )
 
 			if np:
+				if choice([0, 0, 1]):
+					adj = get_random_word( 's' )
+					event_string += f' { adj }'
 				event_string += f' { " ".join([n[0].lower() for n in np]) }'
 			
 			if pp:
@@ -129,13 +135,19 @@ def build_sentence( text ):
 					event_string += f' to'
 
 				if p:
-					event_string += f' { " ".join([n[0] for n in pp]) }'
+					sub_pn = []
+					for n, pos in pp:
+						if n in names:
+							sub_pn.append( names[n] )
+						else:
+							sub_pn.append( n )
+					event_string += f' { " ".join( sub_pn ) }'
 
 			events.append( event_string )
 
 		else: # questions marks and such
 			for word, pos in tagged:
-				events.append( random.choice( comps['non-alpha'][word] ) )
+				events.append( choice( comps['non-alpha'][word] ) )
 
 	sentence = ''
 
@@ -182,5 +194,41 @@ def check_props( tagged ):
 		if '-' in word:
 			t = word.split('-')[0]
 			if t in subs['types']:
+				if word not in names: # add names to dict for later substitution
+					names[word] = get_random_name( t )
 				tagged[index] = ( word, 'NNP' )
 	return tagged
+
+def get_random_name( t ): # type
+	if t == 'Org':
+		s = get_random_string( choice( [3, 6] ) )
+		c = choice( ['Company', 'Organization'] )
+		return f'{ c } { s }' if choice( [0, 1] ) else  f'The { s } { c }'
+	if t == 'Person':
+		l = get_random_string( 1 )
+		m = choice( ['Mr.', 'Ms.', 'Mx.'] )
+		return f'{ l }—' if choice([0, 1]) else f'{ m } { l }'
+	if t == 'Place':
+		e = choice( ['ville', ' City', 'town', 'ton', 'ford'] )	
+		n = get_random_string( 1 )
+		d = '—' * choice( [2, 3, 4, 5] )
+		return f'{ n }{ d }{ e }'
+	if t == 'Publication':
+		e = choice( ['Times', 'Post', 'Gazette'] )
+		n = get_random_string( 4 )
+		return f'{ n } { e }'
+	if t == 'List':
+		e = choice( ['List', 'Mailing List', 'Listserv'] )
+		n = get_random_string( 4 )
+		return f'{ n } { e }'
+	if t == 'App':
+		n = get_random_string( choice( [3, 4] ) )
+		return f'{ n }App'
+	else:
+		return f'{ get_random_string( choice( [3, 4, 5] ) ) }'
+
+def get_random_string( n ):
+	string = ''
+	while len(string) < n:
+		string += choice( rchars )
+	return string

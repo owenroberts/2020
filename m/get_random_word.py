@@ -3,7 +3,10 @@
 from random import choice
 from nltk.corpus import wordnet as wn
 
-def get_random_word( pos ):
+words = {}
+words['r'] = list( wn.all_synsets( 'r' ) )  # adverbs
+words['s'] = list( wn.all_synsets( 's' ) )  # adjectives
 
-	word = choice( list( wn.all_synsets( pos ) ) ).name().split( '.' )[0]
+def get_random_word( pos ):
+	word = choice( words[pos] ).name().split( '.' )[0]
 	return word.replace( '_', ' ' )
