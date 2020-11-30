@@ -133,10 +133,10 @@ The names of people, places, organizations and other named entities in this docu
 
 """ )
 
-for file in onlyfiles:
-	read_file( file )
-# for i in range(10, 15):
-# 	read_file( onlyfiles[i] )
+# for file in onlyfiles:
+# 	read_file( file )
+for i in range(10, 15):
+	read_file( onlyfiles[i] )
 # read_file( onlyfiles[0] )
 
 o.write( r'\end{document}' )

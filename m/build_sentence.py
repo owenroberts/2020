@@ -109,16 +109,24 @@ def build_sentence( text ):
 
 			if adv and adv[-2:] != 'ly':
 				event_string += f' {adv}'
+
+			# random adj
+			adj = ''
+			if np and choice([0, 0, 1]):
+				adj = get_random_word( 's' )
 			
 			if np and needs_article( np ):
 				n = [t for t in np if 'NN' in t[1]][0]
 				dt = 'an' if n[0][0] in 'aeiou' else 'a'
+				if adj:
+					dt = 'an' if adj[0][0] in 'aeiou' else 'a'
 				np.insert( np.index( n ), ( dt, 'DT' ) )
-
-			if np:
-				if choice([0, 0, 1]):
-					adj = get_random_word( 's' )
-					event_string += f' { adj }'
+				if adj:
+					np.insert( np.index( n ), ( adj, 'JJ' ) )
+			elif adj:
+				event_string += f' { adj }'
+				
+			if np:	
 				event_string += f' { " ".join([n[0].lower() for n in np]) }'
 			
 			if pp:
