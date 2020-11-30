@@ -17,13 +17,15 @@ time_sheets_path = 'time_sheets/'
 onlyfiles = [f for f in listdir(time_sheets_path) if isfile(join(time_sheets_path, f))]
 onlyfiles.sort()
 
-
 days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+
 current_month = 'None'
+current_day = 0
 
 def read_file( file ):
 	global current_month
+	global current_day
 	
 	# each day starts here
 	current_hour = 0
@@ -31,22 +33,35 @@ def read_file( file ):
 	date = file.split(' ')[0].split('_') # get date from file name
 
 	# get weekday string from date
-	weekday = days[datetime.date(2020, int(date[0]), int(date[1])).weekday()]
+	weekday = datetime.date(2020, int(date[0]), int(date[1])).weekday()
+	if weekday >= current_day:
+		current_day = weekday
+	else:
+		o.write( r'\vspace{1ex}' )
+		o.write( '\n' )
+		o.write( r'\noindent ' )
+		current_day = weekday
+
 	month = months[datetime.date(2020, int(date[0]), int(date[1])).month - 1]
 
 	if month != current_month:
-		o.write(month)
-		o.write('\n\n')
+		o.write( r'\section*{%s}' % month )
+		o.write( '\n' )
+		# o.write( month )
+		o.write( r'\vspace{1ex}' )
+		o.write( '\n' )
 		current_month = month
 
-	o.write( random.choice( comps['first_sent'][weekday] ) + " " )
+
+
+	o.write( random.choice( comps['first_sent'][days[weekday]] ) + " " )
 	
-	lines = open(time_sheets_path + file, 'r').readlines()
+	lines = open( time_sheets_path + file, 'r' ).readlines()
 	for line in lines:
 
 		line = line.rstrip()
 
-		if len(line) > 0:
+		if len( line ) > 0:
 			# print( 'line:', line )
 			
 			time_stamp, duration, text, current_hour = get_time_and_text( line, current_hour )
@@ -69,15 +84,50 @@ def read_file( file ):
 
 			# print( f'{ sentence } for { duration }. ' )
 			# add random/multi sentence structures
-			o.write( f'{ sentence } for { duration }. ' )
+			# o.write( f'{ sentence } for { duration }. ' )
+			s = f'{ sentence } for { duration }. '
+			o.write( '%s' % s )
 
 	# new line after day
 	o.write( '\n\n' )
 
-o = open('full_text.txt', 'w') # output file
+o = open( 'tex/2020.tex', 'w' ) # output file
+
+o.write( r"""\documentclass[oneside,12pt]{book}
+\frenchspacing
+\usepackage{makeidx}
+\makeindex
+\begin{document}
+\title{\textit{2020} by James}
+\author{Owen Ribbit}
+\date{November 2020}
+\maketitle
+
+\pagestyle{empty}
+%% copyrightpage
+\begingroup
+\footnotesize
+\parindent 0pt
+\parskip \baselineskip
+\textcopyright{} 2020 Owen Roberts \\
+All rights reserved.
+
+This work is licensed with Creative Commons Attribution-ShareAlike 4.0
+International.(CC BY-SA 4.0)
+
+http://creativecommons.org/licenses/by-sa/4.0/
+
+\endgroup
+\clearpage
+
+\mainmatter
+
+""" )
 
 for file in onlyfiles:
 	read_file( file )
 # read_file( onlyfiles[0] )
+
+o.write( r'\end{document}' )
 
 o.close()

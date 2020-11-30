@@ -75,9 +75,8 @@ def build_sentence( text ):
 					noun, pos = [t for t in pp if 'NNP' in t[1]][0]
 				else:
 					print( ' ** fuck no noun ** ' )
+					print( text )
 					print( tagged )
-					print( np )
-					print( pp )
 				
 				related = get_related_words( wnl.lemmatize( noun, 'n' ) if 'S' in pos else noun )
 				
