@@ -32,5 +32,5 @@ def subs():
 		'uncountable': [ 'information' ],
 		'check_verbs': [ 'review', 'meet', 'prepare', 'email' ],
 		'weird_nouns': [ 'nothing' ],
-		'types': [ 'Org', 'Person', 'Place', 'Publication', 'List', 'App', 'School', 'Station', 'Event', 'Topic' ]
+		'types': [ 'Org', 'Person', 'Place', 'Publication', 'List', 'App', 'School', 'Station', 'Event', 'Topic', 'Comm', 'Documentary' ]
 	}

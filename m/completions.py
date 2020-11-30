@@ -42,7 +42,6 @@ def completions():
 		},
 		'end': [
 			"do nothing",
-			"nothing happens",
 			"don't know what I do"
 		]
 	}

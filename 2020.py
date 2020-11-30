@@ -17,23 +17,27 @@ time_sheets_path = 'time_sheets/'
 onlyfiles = [f for f in listdir(time_sheets_path) if isfile(join(time_sheets_path, f))]
 onlyfiles.sort()
 
-full_text = ''
 
 days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-
-
+current_month = 'None'
 
 def read_file( file ):
-	global full_text
-
+	global current_month
+	
 	# each day starts here
 	current_hour = 0
 	track_the_time = '' # keep track of morning/afternoon
 	date = file.split(' ')[0].split('_') # get date from file name
 
 	# get weekday string from date
-	weekday = days[datetime.date(2020, int(date[0]), int(date[1])).weekday()] 
+	weekday = days[datetime.date(2020, int(date[0]), int(date[1])).weekday()]
+	month = months[datetime.date(2020, int(date[0]), int(date[1])).month - 1]
+
+	if month != current_month:
+		o.write(month)
+		o.write('\n\n')
+		current_month = month
 
 	o.write( random.choice( comps['first_sent'][weekday] ) + " " )
 	
@@ -72,8 +76,8 @@ def read_file( file ):
 
 o = open('full_text.txt', 'w') # output file
 
-# for file in onlyfiles:
-# 	read_file( file )
-read_file( onlyfiles[0] )
+for file in onlyfiles:
+	read_file( file )
+# read_file( onlyfiles[0] )
 
 o.close()

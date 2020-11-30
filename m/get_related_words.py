@@ -4,15 +4,25 @@
 
 import requests
 from nltk.corpus import wordnet as wn
+from m import db
 
 cn_url = 'http://api.conceptnet.io/c/en/'
 
 exceptions = ['e_mail']
 
 # add pos if necessary - now its only getting verbs
+def get_related_words( word ):
+	# print( '** word:', word, '**' )
 
-def get_related_word( word ):
-	# print( '** word:', word, '**' ) 
+	check_db = db.rv.search( db.q.word == word )
+	if check_db:
+		return check_db[0]['list']
+	else:
+		related = find_related_words( word )
+		db.rv.insert( { 'word': word, 'list': related } )
+		return related
+		
+def find_related_words( word ):
 
 	data = requests.get( f'{cn_url}/{word}' ).json()
 	# print( data )

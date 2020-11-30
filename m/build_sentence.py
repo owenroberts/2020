@@ -5,11 +5,14 @@ import nltk
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer 
 
-from m.get_related_word import get_related_word
+from m.get_related_words import get_related_words
 from m.completions import completions
 from m.get_anon_subs import get_subs
 
 from m import db
+
+from m import subs # substitions
+subs = subs.subs()
 
 comps = completions()
 wnl = WordNetLemmatizer()
@@ -27,16 +30,17 @@ def build_sentence( text ):
 		frag = get_subs( frag )
 		# print( 'frag:', frag )
 
-		tokens = word_tokenize( text )
+		tokens = word_tokenize( frag )
 		tagged = nltk.pos_tag( tokens )
 		tagged = sub_check_verbs( tagged )
+		tagged = check_props( tagged )
 		# print( 'tagged', tagged )
 
 		# lower case non-prop nouns
 		if any( t[1].isalpha() for t in tagged ):
 
 			grammar = '''
-				NP: { <NN>?<IN>?<DT>?<NN.*> } # include JJ
+				NP: { <NN>?<IN>?<DT>?<NN.*> } # include JJ?
 				VP: { <VB.*><RP>? }
 			'''
 			cp = nltk.RegexpParser( grammar )
@@ -74,7 +78,9 @@ def build_sentence( text ):
 					print( tagged )
 					print( np )
 					print( pp )
-				related = get_related_word( wnl.lemmatize( noun, 'n' ) if 'S' in pos else noun )
+				
+				related = get_related_words( wnl.lemmatize( noun, 'n' ) if 'S' in pos else noun )
+				
 				if related:
 					vp = [( random.choice( related ), 'VB' )]
 				else:
@@ -133,7 +139,7 @@ def build_sentence( text ):
 def needs_article( noun_phrase ):
 	if 'DT' in [t[1] for t in noun_phrase]:
 		return False
-	noun, pos = [n for n in noun_phrase if 'NN' in n[1]][0]
+	noun, pos = [n for n in noun_phrase if 'NN' in n[1]][-1] # last noun in noun phrase 
 	if not re.match( 'NN$', pos ):
 		return False
 	if noun[-3:] == 'ing':
@@ -153,4 +159,14 @@ def sub_check_verbs( tagged ):
 		if word.lower() in subs['check_verbs']:
 			pos = 'VB'
 			tagged[index] = ( word, pos )
+	return tagged
+
+# make sure anything that's subbed is NNP
+def check_props( tagged ):
+	for index, tag in enumerate( tagged ):
+		word, pos = tag
+		if '-' in word:
+			t = word.split('-')[0]
+			if t in subs['types']:
+				tagged[index] = ( word, 'NNP' )
 	return tagged

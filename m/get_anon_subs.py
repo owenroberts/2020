@@ -9,7 +9,6 @@ def strip_slashes( text ):
 	return " ".join([w.replace('/', ' and ') for w in text.split(' ')])
 
 def get_subs( text ):
-	# print( text )
 
 	text = sub_text( text, 'abbreviations', True ) # sub common abbr for full words
 	text = sub_text( text, 'special_abbreviations', False )
@@ -32,7 +31,6 @@ def get_subs( text ):
 			for word in word_list:
 				if word in text:
 					text = re.sub( r'\b' + word + r'\b', sub, text )
-
 	return text
 
 # substitute abbrevations like w/ and re:
