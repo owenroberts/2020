@@ -22,15 +22,19 @@ months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'Augus
 
 current_month = 'None'
 current_day = 0
+busy_range = []
+
 
 def read_file( file ):
 	global current_month
 	global current_day
 	
+	
 	# each day starts here
 	current_hour = 0
 	track_the_time = '' # keep track of morning/afternoon
 	date = file.split(' ')[0].split('_') # get date from file name
+	was_busy = 0
 
 	# get weekday string from date
 	weekday = datetime.date(2020, int(date[0]), int(date[1])).weekday()
@@ -83,7 +87,23 @@ def read_file( file ):
 			# print( f'{ sentence } for { duration }. ' )
 			# add random/multi sentence structures
 			# o.write( f'{ sentence } for { duration }. ' )
+			was_busy += len( f'{ sentence } for { duration }.' )
 			o.write( '%s' % f'{ sentence } for { duration }. ' )
+
+	
+	# end of the day
+	
+	b = int( was_busy / 100 ) # range 0 - 24 ish
+	busy_range.append( b )
+	busy_avg = int( sum( busy_range ) / len( busy_range ) )
+	if b < busy_avg:
+		o.write( comps['busy']['0'] )
+	elif b == busy_avg:
+		o.write( comps['busy']['1'] )
+	else:
+		o.write( comps['busy']['2'] )
+
+	o.write( comps['eod'][str( current_hour )] )
 
 	# new line after day
 	# print( '\n\n' )
@@ -133,10 +153,10 @@ The names of people, places, organizations and other named entities in this docu
 
 """ )
 
-# for file in onlyfiles:
-# 	read_file( file )
-for i in range(10, 15):
-	read_file( onlyfiles[i] )
+for file in onlyfiles:
+	read_file( file )
+# for i in range(10, 15):
+	# read_file( onlyfiles[i] )
 # read_file( onlyfiles[0] )
 
 o.write( r'\end{document}' )

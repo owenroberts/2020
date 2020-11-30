@@ -6,7 +6,6 @@ def subs():
 			'LOA': 'letter of agreement',
 			'WFH': 'work from home',
 			'RFP': 'request for proposal',
-			'POS': 'point of service',
 			'FAQ': 'frequently asked questions',
 			'ID': 'identify'
 		},
