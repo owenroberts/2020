@@ -52,8 +52,6 @@ def read_file( file ):
 		o.write( '\n' )
 		current_month = month
 
-
-
 	o.write( random.choice( comps['first_sent'][days[weekday]] ) + " " )
 	
 	lines = open( time_sheets_path + file, 'r' ).readlines()
@@ -82,12 +80,13 @@ def read_file( file ):
 			if not duration:
 				duration = "I don't remember how long" # no matching time stamp
 
-			# print( f'{ sentence } for { duration }. ' )
+			print( f'{ sentence } for { duration }. ' )
 			# add random/multi sentence structures
 			# o.write( f'{ sentence } for { duration }. ' )
 			o.write( '%s' % f'{ sentence } for { duration }. ' )
 
 	# new line after day
+	print( '\n\n' )
 	o.write( '\n\n' )
 
 o = open( 'tex/2020.tex', 'w' ) # output file
@@ -123,8 +122,10 @@ http://creativecommons.org/licenses/by-sa/4.0/
 
 """ )
 
-for file in onlyfiles:
-	read_file( file )
+# for file in onlyfiles:
+	# read_file( file )
+for i in range(0, 5):
+	read_file( onlyfiles[i] )		
 # read_file( onlyfiles[0] )
 
 o.write( r'\end{document}' )

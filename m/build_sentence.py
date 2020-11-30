@@ -6,6 +6,7 @@ from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer 
 
 from m.get_related_words import get_related_words
+from m.get_random_word import get_random_word
 from m.completions import completions
 from m.get_anon_subs import get_subs
 
@@ -90,7 +91,21 @@ def build_sentence( text ):
 						search = noun.split('-')[0]
 					vp = [( random.choice( comps['verbs'][search] ), 'VB' )]
 
-			event_string = " ".join([v[0].lower() for v in vp])
+			event_string = '' # put it all together
+
+			# get adverb
+			adv = ''
+			if random.choice([0, 1]):
+				adv = get_random_word( 'r' )
+
+			if adv[-2:] == 'ly':
+				event_string += f'{adv} '
+
+			event_string += " ".join([v[0].lower() for v in vp])
+
+			if adv and adv[-2:] != 'ly':
+				print( '*' )
+				event_string += f' {adv}'
 			
 			if np and needs_article( np ):
 				n = [t for t in np if 'NN' in t[1]][0]
