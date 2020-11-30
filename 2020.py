@@ -9,8 +9,8 @@ from os.path import isfile, join
 from m.get_time_and_text import get_time_and_text
 from m.build_sentence import build_sentence
 from m.completions import completions
-
 comps = completions()
+
 time_sheets_path = 'time_sheets/'
 # load all timesheets 
 # https://stackoverflow.com/questions/3207219/how-do-i-list-all-files-of-a-directory
@@ -85,8 +85,7 @@ def read_file( file ):
 			# print( f'{ sentence } for { duration }. ' )
 			# add random/multi sentence structures
 			# o.write( f'{ sentence } for { duration }. ' )
-			s = f'{ sentence } for { duration }. '
-			o.write( '%s' % s )
+			o.write( '%s' % f'{ sentence } for { duration }. ' )
 
 	# new line after day
 	o.write( '\n\n' )
