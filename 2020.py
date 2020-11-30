@@ -22,6 +22,8 @@ full_text = ''
 days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 
+
+
 def read_file( file ):
 	global full_text
 
@@ -33,7 +35,7 @@ def read_file( file ):
 	# get weekday string from date
 	weekday = days[datetime.date(2020, int(date[0]), int(date[1])).weekday()] 
 
-	full_text += random.choice( comps['first_sent'][weekday] ) + " "
+	o.write( random.choice( comps['first_sent'][weekday] ) + " " )
 	
 	lines = open(time_sheets_path + file, 'r').readlines()
 	for line in lines:
@@ -53,7 +55,7 @@ def read_file( file ):
 				beginning = 'Then, I '
 
 			if text:
-				sentence = build_sentence( text, beginning )
+				sentence = beginning + build_sentence( text )
 			else:
 				sentence = beginning + random.choice( comps['end'] ) # time stamp with nothing after
 
@@ -63,17 +65,15 @@ def read_file( file ):
 
 			# print( f'{ sentence } for { duration }. ' )
 			# add random/multi sentence structures
-			full_text += f'{ sentence } for { duration }. '
+			o.write( f'{ sentence } for { duration }. ' )
 
 	# new line after day
-	full_text += '\n\n'
+	o.write( '\n\n' )
 
+o = open('full_text.txt', 'w') # output file
 
 # for file in onlyfiles:
-	# print( file )
+# 	read_file( file )
 read_file( onlyfiles[0] )
 
-# output file
-o = open('full_text.txt', 'w')
-o.write( full_text )
 o.close()

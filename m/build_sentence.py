@@ -2,41 +2,33 @@
 import random
 import re
 import nltk
+from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer 
-from tinydb import TinyDB, Query
 
 from m.get_related_word import get_related_word
 from m.completions import completions
-from m.tag_and_anon import tag_and_anon
+from m.get_anon_subs import get_subs
 
-from m import subs # substitions
-subs = subs.subs()
+from m import db
 
 comps = completions()
 wnl = WordNetLemmatizer()
 
-db = TinyDB( 'db.json' )
-q = Query()
-pns = db.table( 'prop_noun_subs' )
-rv = db.table( 'related_verbs' ) # save related verbs from concept net to speed up commons verbs
 
-
-def build_sentence( text, beginning ):
+def build_sentence( text ):
 	# print( text )
 
-	sentence = beginning
 	events = [] # each things that happens during time period
 
 	# get fragments of each time entry, usually one fragment is one "event"
 	fragments = [f for f in text.split(',')]
 	for frag in fragments:
 		frag = frag.strip()
-		frag = sub_text( frag, 'abbreviations', True ) # sub common abbr for full words
-		frag = sub_text( frag, 'special_abbreviations', False )
-		frag = sub_text( frag, 'acronyms', True ) # sub common acronyms for full words
+		frag = get_subs( frag )
 		# print( 'frag:', frag )
 
-		tagged = tag_and_anon( frag ) # get tagged, anonymize 
+		tokens = word_tokenize( text )
+		tagged = nltk.pos_tag( tokens )
 		tagged = sub_check_verbs( tagged )
 		# print( 'tagged', tagged )
 
@@ -65,22 +57,23 @@ def build_sentence( text, beginning ):
 					if chunk.label() == 'VP':
 						verbs.append( chunk.leaves() )
 
-			# props = [t for t in tagged if 'NNP' in t[1]] # prop nouns
-			# nouns = [t for t in tagged if re.match( r'NNS?$', t[1])] # regular noun
-			# verbs = [t for t in tagged if 'VB' in t[1]] # verbs
-
 			# these list with tuples word, pos
 			pp = random.choice( props ) if props else ''
 			np = random.choice( nouns ) if nouns else ''
 			vp = random.choice( verbs ) if verbs else ''
 
 			if not vp:
+				noun = ''
+				pos = ''
 				if np:
 					noun, pos = [t for t in np if 'NN' in t[1]][0]
 				elif pp:
 					noun, pos = [t for t in pp if 'NNP' in t[1]][0]
 				else:
 					print( ' ** fuck no noun ** ' )
+					print( tagged )
+					print( np )
+					print( pp )
 				related = get_related_word( wnl.lemmatize( noun, 'n' ) if 'S' in pos else noun )
 				if related:
 					vp = [( random.choice( related ), 'VB' )]
@@ -124,6 +117,8 @@ def build_sentence( text, beginning ):
 			for word, pos in tagged:
 				events.append( random.choice( comps['non-alpha'][word] ) )
 
+	sentence = ''
+
 	# add events to sentence, separated by comma or and
 	for index, event in enumerate(events):
 		sentence += event
@@ -150,17 +145,6 @@ def needs_article( noun_phrase ):
 def pos_in_frag( pos, frag ):
 	# if any pos in array contains the pos string
 	return True if [w for w in frag if re.match( pos, w ) ] else False
-
-# substitute abbrevations like w/ and re:
-def sub_text( text, sub_type, use_boundary ):
-	for a in subs[sub_type]:
-		if a in text:
-			if use_boundary:
-				r = r'\b' + re.escape( a ) + r'\b' 
-			else:
-				r = a
-			text = re.sub( r, subs[sub_type][a], text )
-	return text
 
 # substitute commonly mistagged nouns
 def sub_check_verbs( tagged ):

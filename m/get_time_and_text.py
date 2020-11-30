@@ -91,12 +91,15 @@ def duration_to_string( duration ):
 		else:
 			return f'an hour and { min_string }'
 	else:
+		h = int( hours )
+		hour_string = number_strings[h] if h < len( number_strings ) else hours
+
 		if mins == 0:
-			return f'{ number_strings[int( hours )] } hours'
+			return f'{ hour_string } hours'
 		if mins == 0.5:
-			return f'{ number_strings[int( hours )] } and a half hours'
+			return f'{ hour_string } and a half hours'
 		else:
-			return f'{ number_strings[int( hours )] } hours and { min_string }'
+			return f'{ hour_string } hours and { min_string }'
 
 	# jesus christ
 
