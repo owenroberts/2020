@@ -68,12 +68,12 @@ def completions():
 			'20': 'What a long day.',
 			'21': 'I\'m never going to get out of here.',
 			'22': 'I\'m never going to get out of here.',
-			'23': 'It\' getting late.',
-			'24': 'It\' getting late.',
+			'23': 'It\'s getting late.',
+			'24': 'It\'s getting late.',
 		},
 		'busy': {
-			'0': 'Didn\'t do too much today. ',
-			'1': 'Pretty normal load today. ',
+			'0': 'I didn\'t do too much today. ',
+			'1': 'I have a pretty normal load today. ',
 			'2': 'I have way too much to do. '
 		}
 	}

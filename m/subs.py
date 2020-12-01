@@ -12,6 +12,7 @@ def subs():
 		'special_abbreviations': {
 			'w/': 'with',
 			'.25': 'some',
+			'.5': 'half hour',
 			're:': 'regarding',
 			're :': 'regarding',
 			'Feb.': 'February',
