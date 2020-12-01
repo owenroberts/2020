@@ -25,10 +25,9 @@ current_day = 0
 busy_range = []
 
 
-def read_file( file ):
+def read_file( file, go_backwards ):
 	global current_month
 	global current_day
-	
 	
 	# each day starts here
 	current_hour = 0
@@ -59,6 +58,8 @@ def read_file( file ):
 	o.write( choice( comps['first_sent'][days[weekday]] ) + " " )
 	
 	lines = open( time_sheets_path + file, 'r' ).readlines()
+	if go_backwards:
+		lines = reversed( lines )
 	for line in lines:
 
 		line = line.rstrip()
@@ -77,6 +78,9 @@ def read_file( file ):
 				duration = "I don't remember how long" # no matching time stamp
 
 			current_time = 'afternoon' if current_hour >= 12 else 'morning'
+			if go_backwards:
+				current_time = 'afternoon' if current_hour < 12 else 'morning'
+			
 			if not track_the_time or current_time is not track_the_time:
 				time_change = True
 				track_the_time = current_time
@@ -158,10 +162,25 @@ The names of people, places, organizations and other named entities in this docu
 """ )
 
 # for file in onlyfiles:
-	# read_file( file )
-for i in range(0, 5):
-	read_file( onlyfiles[i] )
+	# read_file( file, False )
+# for i in range(0, 5):
+	# read_file( onlyfiles[i], False )
 # read_file( onlyfiles[0] )
+
+o.write( r"""\section*{\hfil Part 2\hfil}
+\clearpage
+
+""" )
+
+# do it again in reverse
+count = 0
+for file in reversed( onlyfiles ):
+	read_file( file, True )
+	count = count + 1
+	if count == 5:
+		break
+
+
 
 o.write( r'\end{document}' )
 
