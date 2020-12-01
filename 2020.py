@@ -124,7 +124,6 @@ o.write( r"""\documentclass[oneside,12pt]{book}
 \pagestyle{empty}
 %% copyrightpage
 \begingroup
-\footnotesize
 \parindent 0pt
 \parskip \baselineskip
 \textcopyright{} 2020 Owen Roberts \\
@@ -135,21 +134,15 @@ International.(CC BY-SA 4.0)
 
 http://creativecommons.org/licenses/by-sa/4.0/
 
-\endgroup
-\clearpage
-
-\pagestyle{empty}
-%% copyrightpage
-\begingroup
-\footnotesize
-\parindent 0pt
-\parskip \baselineskip
 The names of people, places, organizations and other named entities in this document have been replaced with randomly generated names.  Any resemblance to actual persons, organizations, places, etc. is coincidental.
 
 \endgroup
 \clearpage
 
 \mainmatter
+
+\section*{\hfil Part 1\hfil}
+\clearpage
 
 """ )
 
