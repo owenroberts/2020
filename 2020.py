@@ -1,7 +1,7 @@
 # read through all the time sheets and add them to the main text
 
 import datetime
-import random
+from random import choice
 
 from os import listdir
 from os.path import isfile, join
@@ -56,7 +56,7 @@ def read_file( file ):
 		o.write( '\n' )
 		current_month = month
 
-	o.write( random.choice( comps['first_sent'][days[weekday]] ) + " " )
+	o.write( choice( comps['first_sent'][days[weekday]] ) + " " )
 	
 	lines = open( time_sheets_path + file, 'r' ).readlines()
 	for line in lines:
@@ -68,27 +68,37 @@ def read_file( file ):
 			
 			time_stamp, duration, text, current_hour = get_time_and_text( line, current_hour )
 
-			current_time = 'afternoon' if current_hour >= 12 else 'morning'
-			if not track_the_time or current_time is not track_the_time:
-				beginning = f'In the { current_time }, I '
-				track_the_time = current_time
-			else:
-				beginning = 'Then, I '
-
 			if text:
-				sentence = beginning + build_sentence( text )
+				sentence = build_sentence( text )
 			else:
-				sentence = beginning + random.choice( comps['end'] ) # time stamp with nothing after
+				sentence = choice( comps['end'] ) # time stamp with nothing after
 
-			# print( 'duration:', duration )
 			if not duration:
 				duration = "I don't remember how long" # no matching time stamp
 
-			# print( f'{ sentence } for { duration }. ' )
-			# add random/multi sentence structures
-			# o.write( f'{ sentence } for { duration }. ' )
-			was_busy += len( f'{ sentence } for { duration }.' )
-			o.write( '%s' % f'{ sentence } for { duration }. ' )
+			current_time = 'afternoon' if current_hour >= 12 else 'morning'
+			if not track_the_time or current_time is not track_the_time:
+				# beginning = f'In the { current_time }, I'
+				time_change = True
+				track_the_time = current_time
+			else:
+				time_change = False
+				# beginning = 'Then, I'
+
+			sent_type = choice( [0, 1, 2] )
+			if sent_type == 0:
+				beginning = f'In the { current_time },' if time_change else 'Then,'
+				s = f'{ beginning } I { sentence } for { duration }. '
+			elif sent_type == 1:
+				s = '' if time_change else 'Then, '
+				s += f'I { sentence } for { duration }'
+				s += f' in the { current_time }. ' if time_change else '. '
+			else:
+				beginning = f'For { duration } in the { current_time },' if time_change else f'Then, for { duration }'
+				s = f'{ beginning } I { sentence }. '
+			
+			was_busy += len( s )
+			o.write( '%s' % s )
 
 	
 	# end of the day
@@ -146,10 +156,10 @@ The names of people, places, organizations and other named entities in this docu
 
 """ )
 
-for file in onlyfiles:
-	read_file( file )
-# for i in range(10, 15):
-	# read_file( onlyfiles[i] )
+# for file in onlyfiles:
+	# read_file( file )
+for i in range(0, 5):
+	read_file( onlyfiles[i] )
 # read_file( onlyfiles[0] )
 
 o.write( r'\end{document}' )
