@@ -48,17 +48,18 @@ def get_time_and_text( line, current_hour ):
 # passing current hour around seems nuts ... 
 def adjust_afternoon( time, current_hour ):
 	h, m = time.split(':')
-	if int(h) > current_hour:
-		current_hour = int(h)
-	if int(h) < current_hour and int(h) < 12:
-		current_hour = int(h) + 12
+	h = int( h )
+	if h > current_hour:
+		current_hour = h
+	if h < current_hour and h < 12:
+		current_hour = h + 12
 	
 	# special case 
-	if int(h) == 12 and current_hour > 12:
-		return f'{int(h) - 12}:{m}', current_hour	
+	if h == 12 and current_hour > 12:
+		return f'{h - 12}:{m}', current_hour	
 	
-	if current_hour >= 12 and h != '12':
-		return f'{int(h) + 12}:{m}', current_hour
+	if current_hour >= 12 and h != 12:
+		return f'{h + 12}:{m}', current_hour
 	else:
 		return time, current_hour
 		
