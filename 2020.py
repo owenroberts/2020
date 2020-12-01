@@ -78,12 +78,10 @@ def read_file( file ):
 
 			current_time = 'afternoon' if current_hour >= 12 else 'morning'
 			if not track_the_time or current_time is not track_the_time:
-				# beginning = f'In the { current_time }, I'
 				time_change = True
 				track_the_time = current_time
 			else:
 				time_change = False
-				# beginning = 'Then, I'
 
 			sent_type = choice( [0, 1, 2] )
 			if sent_type == 0:
@@ -94,15 +92,18 @@ def read_file( file ):
 				s += f'I { sentence } for { duration }'
 				s += f' in the { current_time }. ' if time_change else '. '
 			else:
-				beginning = f'For { duration } in the { current_time },' if time_change else f'Then, for { duration }'
+				if time_change:
+					beginning = f'For { duration } in the { current_time },'
+				else:
+					beginning = f'Then, for { duration }'
 				s = f'{ beginning } I { sentence }. '
 			
-			was_busy += len( s )
+			was_busy += len( s ) # business counter
 			o.write( '%s' % s )
 
 	
 	# end of the day
-	
+	# track relative 'business'
 	b = int( was_busy / 100 ) # range 0 - 24 ish
 	busy_range.append( b )
 	busy_avg = int( sum( busy_range ) / len( busy_range ) )
