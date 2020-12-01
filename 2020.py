@@ -55,13 +55,12 @@ def read_file( file, go_backwards ):
 		o.write( '\n' )
 		current_month = month
 
-	o.write( choice( comps['first_sent'][days[weekday]] ) + " " )
+	sents = []
+	sents.append( choice( comps['first_sent'][days[weekday]] ) )
 	
 	lines = open( time_sheets_path + file, 'r' ).readlines()
-	if go_backwards:
-		lines = reversed( lines )
+	
 	for line in lines:
-
 		line = line.rstrip()
 
 		if len( line ) > 0:
@@ -78,8 +77,6 @@ def read_file( file, go_backwards ):
 				duration = "I don't remember how long" # no matching time stamp
 
 			current_time = 'afternoon' if current_hour >= 12 else 'morning'
-			if go_backwards:
-				current_time = 'afternoon' if current_hour < 12 else 'morning'
 			
 			if not track_the_time or current_time is not track_the_time:
 				time_change = True
@@ -90,21 +87,21 @@ def read_file( file, go_backwards ):
 			sent_type = choice( [0, 1, 2] )
 			if sent_type == 0:
 				beginning = f'In the { current_time },' if time_change else 'Then,'
-				s = f'{ beginning } I { sentence } for { duration }. '
+				s = f'{ beginning } I { sentence } for { duration }.'
 			elif sent_type == 1:
 				s = '' if time_change else 'Then, '
 				s += f'I { sentence } for { duration }'
-				s += f' in the { current_time }. ' if time_change else '. '
+				s += f' in the { current_time }. ' if time_change else '.'
 			else:
 				if time_change:
 					beginning = f'For { duration } in the { current_time },'
 				else:
 					beginning = f'Then, for { duration }'
-				s = f'{ beginning } I { sentence }. '
+				s = f'{ beginning } I { sentence }.'
 			
 			was_busy += len( s ) # business counter
-			o.write( '%s' % s )
-
+			# o.write( '%s' % s )
+			sents.append( s )
 	
 	# end of the day
 	# track relative 'business'
@@ -112,13 +109,17 @@ def read_file( file, go_backwards ):
 	busy_range.append( b )
 	busy_avg = int( sum( busy_range ) / len( busy_range ) )
 	if b < busy_avg:
-		o.write( comps['busy']['0'] )
+		sents.append( comps['busy']['0'] )
 	elif b == busy_avg:
-		o.write( comps['busy']['1'] )
+		sents.append( comps['busy']['1'] )
 	else:
-		o.write( comps['busy']['2'] )
+		sents.append( comps['busy']['2'] )
 
-	o.write( comps['eod'][str( current_hour )] )
+	sents.append( comps['eod'][str( current_hour )] )
+
+	if go_backwards:
+		sents = reversed( sents )
+	o.write( " ".join( sents ) )
 
 	# new line after day
 	# print( '\n\n' )
