@@ -23,6 +23,7 @@ def get_time_and_text( line, current_hour ):
 		t1, t2 = re.search( r'(\d+:\d+)-*(\d+:\d+)*', time_stamp ).groups()
 		
 		# get morning vs afternoon, needs to go in order
+		# need adjusted t1 and t2 for duration calc
 		t1, current_hour = adjust_afternoon( t1, current_hour )
 		if t2:
 			t2, current_hour = adjust_afternoon( t2, current_hour )
@@ -48,17 +49,18 @@ def get_time_and_text( line, current_hour ):
 # passing current hour around seems nuts ... 
 def adjust_afternoon( time, current_hour ):
 	h, m = time.split(':')
-	if int(h) > current_hour:
-		current_hour = int(h)
-	if int(h) < current_hour and int(h) < 12:
-		current_hour = int(h) + 12
+	h = int( h )
+	if h > current_hour:
+		current_hour = h
+	if h < current_hour and h < 12:
+		current_hour = h + 12
 	
 	# special case 
-	if int(h) == 12 and current_hour > 12:
-		return f'{int(h) - 12}:{m}', current_hour	
+	if h == 12 and current_hour > 12:
+		return f'{ h - 12 }:{ m }', current_hour	
 	
 	if current_hour >= 12 and h != '12':
-		return f'{int(h) + 12}:{m}', current_hour
+		return f'{ h + 12 }:{ m }', current_hour
 	else:
 		return time, current_hour
 		
